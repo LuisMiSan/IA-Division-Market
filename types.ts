@@ -6,4 +6,5 @@ export interface App {
   description: string;
   icon: string;
   downloadUrl: string;
+  demoUrl: string;
 }
