@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import Header from './components/Header';
 import AppCard from './components/AppCard';
@@ -29,7 +28,7 @@ const App: React.FC = () => {
         {/* Hero Section */}
         <section className="text-center my-16 md:my-24">
           <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-            Bienvenido a IA DIVISION Market
+            Bienvenido a IA DIVISION WorkSpace
           </h1>
           <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
             Descubre, descarga y revoluciona tu fuerza de trabajo con nuestra selección de herramientas de inteligencia artificial de vanguardia.

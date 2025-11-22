@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
                 <div className="bg-gray-800/50 backdrop-blur-sm p-1 rounded-lg border border-slate-700">
                     <img src={LOGO_BASE64} alt="IA Division Logo" className="h-10 w-auto" />
                 </div>
-                <span className="text-2xl font-bold ml-4 text-white tracking-wider">IA DIVISION <span className="font-light">Market</span></span>
+                <span className="text-2xl font-bold ml-4 text-white tracking-wider">IA DIVISION <span className="font-light">WorkSpace</span></span>
             </div>
             <p className="text-gray-400 mt-2 text-sm max-w-xs text-center md:text-left">
               Potenciando el futuro con aplicaciones de inteligencia artificial de vanguardia.
@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-slate-800 pt-6 text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} IA DIVISION Market. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} IA DIVISION WorkSpace. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

@@ -22,7 +22,7 @@ const Header: React.FC = () => {
           <div className="bg-gray-800/50 backdrop-blur-sm p-1 rounded-lg border border-slate-700">
             <img src={LOGO_BASE64} alt="IA Division Logo" className="h-8 w-auto" />
           </div>
-          <span className="text-xl font-bold ml-3 text-white tracking-wider">IA DIVISION <span className="font-light">Market</span></span>
+          <span className="text-xl font-bold ml-3 text-white tracking-wider">IA DIVISION <span className="font-light">WorkSpace</span></span>
         </div>
         <nav className="hidden md:flex items-center space-x-8">
           <a href="#" className="text-gray-300 hover:text-white transition-colors">Inicio</a>
