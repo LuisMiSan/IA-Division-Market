@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [apps, setApps] = useState<AppType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingApp, setEditingApp] = useState<AppType | null>(null);
 
   // Load apps from localStorage or fallback to constants
   useEffect(() => {
@@ -33,13 +34,40 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSaveApp = (newApp: AppType) => {
-    const updatedApps = [newApp, ...apps]; // Add new app to the beginning
+  const handleSaveApp = (appToSave: AppType) => {
+    let updatedApps: AppType[];
+
+    // Check if we are updating an existing app
+    const existingIndex = apps.findIndex(a => a.id === appToSave.id);
+
+    if (existingIndex >= 0) {
+      // Update existing
+      updatedApps = [...apps];
+      updatedApps[existingIndex] = appToSave;
+    } else {
+      // Add new
+      updatedApps = [appToSave, ...apps];
+    }
+    
     setApps(updatedApps);
     localStorage.setItem('ia-workspace-apps', JSON.stringify(updatedApps));
     setIsModalOpen(false);
-    // Switch category to 'Todos' or the new category to ensure the user sees the new app immediately
-    setSelectedCategory('Todos');
+    setEditingApp(null); // Clear editing state
+    
+    // Switch to 'Todos' or ensure category visibility
+    if (selectedCategory !== 'Todos' && selectedCategory !== appToSave.category) {
+        setSelectedCategory('Todos');
+    }
+  };
+
+  const handleEditClick = (app: AppType) => {
+    setEditingApp(app);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingApp(null);
   };
 
   const categories = useMemo(() => {
@@ -85,7 +113,10 @@ const App: React.FC = () => {
              
              {/* Add App Button */}
              <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setEditingApp(null);
+                  setIsModalOpen(true);
+                }}
                 className="flex items-center gap-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-500 text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg hover:shadow-blue-500/30 group"
              >
                 <div className="bg-slate-700 group-hover:bg-white/20 p-1 rounded-full">
@@ -121,7 +152,11 @@ const App: React.FC = () => {
                   <AppCardSkeleton key={i} />
                 ))
               : filteredApps.map(app => (
-                  <AppCard key={app.id} app={app} />
+                  <AppCard 
+                    key={app.id} 
+                    app={app} 
+                    onEdit={handleEditClick} 
+                  />
                 ))
             }
           </div>
@@ -130,11 +165,12 @@ const App: React.FC = () => {
 
       <Footer />
       
-      {/* Modal */}
+      {/* Modal - Reused for Add and Edit */}
       <AddAppModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveApp} 
+        onClose={handleModalClose} 
+        onSave={handleSaveApp}
+        initialData={editingApp}
       />
     </div>
   );

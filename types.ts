@@ -7,4 +7,5 @@ export interface App {
   icon: string;
   downloadUrl: string;
   demoUrl: string;
+  coverUrl?: string;
 }
