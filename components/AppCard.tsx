@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { App } from '../types';
 import { DownloadIcon, PlayIcon } from './icons';
 
@@ -7,13 +7,112 @@ interface AppCardProps {
   app: App;
 }
 
+// Internal helper component for the Ripple Effect
+const RippleAnchor: React.FC<{
+  href: string;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ href, className, children }) => {
+  const [ripples, setRipples] = useState<{ x: number; y: number; size: number; id: number }[]>([]);
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    
+    // Calculate diameter (use the larger dimension to cover the button)
+    const size = Math.max(rect.width, rect.height);
+    
+    // Calculate position relative to the button
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    
+    const newRipple = { x, y, size, id: Date.now() };
+    
+    setRipples((prev) => [...prev, newRipple]);
+
+    // Remove ripple after animation finishes (0.6s)
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
+    }, 600);
+  };
+
+  return (
+    <a
+      href={href}
+      className={`relative overflow-hidden ${className || ''}`}
+      onClick={handleClick}
+    >
+      {ripples.map((ripple) => (
+        <span
+          key={ripple.id}
+          className="animate-ripple"
+          style={{
+            top: ripple.y,
+            left: ripple.x,
+            width: ripple.size,
+            height: ripple.size,
+          }}
+        />
+      ))}
+      <span className="relative z-10 flex items-center justify-center w-full h-full">{children}</span>
+    </a>
+  );
+};
+
+export const AppCardSkeleton: React.FC = () => {
+  return (
+    <div className="flex flex-col h-full items-center animate-pulse">
+        {/* Mobile Screen Skeleton */}
+        <div className="w-full max-w-[170px] aspect-[9/18] bg-slate-900 rounded-[1.25rem] border-[4px] border-slate-800 mb-3 relative overflow-hidden">
+             {/* Internal UI elements for skeleton */}
+             <div className="absolute top-0 w-full h-4 bg-slate-800"></div>
+             
+             {/* Header */}
+             <div className="mt-6 mx-3 flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-slate-800"></div>
+                <div className="h-2 w-16 bg-slate-800 rounded"></div>
+             </div>
+
+             {/* Hero Box */}
+             <div className="mx-3 mt-3 h-20 bg-slate-800/50 rounded-lg"></div>
+
+             {/* List items */}
+             <div className="mx-3 mt-3 space-y-2">
+                 <div className="h-6 bg-slate-800/30 rounded w-full"></div>
+                 <div className="h-6 bg-slate-800/30 rounded w-full"></div>
+                 <div className="h-6 bg-slate-800/30 rounded w-full"></div>
+             </div>
+
+             {/* Bottom bar */}
+             <div className="absolute bottom-0 w-full h-8 bg-slate-800"></div>
+        </div>
+
+        {/* Text Details Skeleton */}
+        <div className="flex-grow flex flex-col px-1 w-full max-w-[170px] items-center">
+            <div className="h-3 w-24 bg-slate-800 rounded mb-2"></div>
+            <div className="h-2 w-16 bg-slate-800/60 rounded mb-3"></div>
+            
+            <div className="w-full space-y-1 mb-2">
+                <div className="h-1.5 w-full bg-slate-800/40 rounded"></div>
+                <div className="h-1.5 w-3/4 mx-auto bg-slate-800/40 rounded"></div>
+            </div>
+
+            <div className="mt-auto flex items-stretch gap-1.5 w-full">
+                <div className="flex-1 h-6 bg-slate-800 rounded"></div>
+                <div className="flex-1 h-6 bg-slate-800 rounded"></div>
+            </div>
+        </div>
+    </div>
+  );
+};
+
 const AppCard: React.FC<AppCardProps> = ({ app }) => {
   return (
     <div className="group relative flex flex-col h-full items-center">
         
         {/* Mobile Screen Representation - Dashboard Mockup */}
         {/* Reduced size: max-w-[170px], reduced border, adjusted aspect ratio */}
-        <div className="relative w-full max-w-[170px] aspect-[9/18] bg-gray-900 rounded-[1.25rem] border-[4px] border-gray-800 shadow-xl overflow-hidden mb-3 transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-blue-900/20">
+        <div className="relative w-full max-w-[170px] aspect-[9/18] bg-gray-900 rounded-[1.25rem] border-[4px] border-gray-800 shadow-xl overflow-hidden mb-3 transition-all duration-300 ease-out group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-blue-500/30">
             
             {/* Internal App UI Container */}
             <div className="absolute inset-0 bg-slate-900 flex flex-col cursor-default select-none">
@@ -110,22 +209,22 @@ const AppCard: React.FC<AppCardProps> = ({ app }) => {
                 {app.description}
             </p>
 
-            {/* Buttons - Compact */}
+            {/* Buttons - Compact with Ripple Effect */}
             <div className="mt-auto flex items-stretch gap-1.5 w-full">
-                <a 
+                <RippleAnchor 
                     href={app.demoUrl}
                     className="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold py-1 px-1 text-[9px] rounded flex items-center justify-center transition-all duration-300 group-hover:bg-slate-800"
                 >
                     <PlayIcon className="w-2.5 h-2.5 mr-1" />
                     <span>Demo</span>
-                </a>
-                <a 
+                </RippleAnchor>
+                <RippleAnchor 
                     href={app.downloadUrl}
                     className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-1 px-1 text-[9px] rounded flex items-center justify-center transition-all duration-300 shadow-lg shadow-blue-900/20"
                 >
                     <DownloadIcon className="w-2.5 h-2.5 mr-1" />
                     <span>Obtener</span>
-                </a>
+                </RippleAnchor>
             </div>
         </div>
     </div>

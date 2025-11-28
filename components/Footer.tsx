@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { LOGO_BASE64 } from '../constants';
-import { GithubIcon, TwitterIcon } from './icons';
+import { GithubIcon, TwitterIcon, FacebookIcon, InstagramIcon } from './icons';
 
 const Footer: React.FC = () => {
   return (
@@ -19,11 +20,29 @@ const Footer: React.FC = () => {
             </p>
           </div>
           <div className="flex space-x-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="#" className="group relative text-gray-400 hover:text-white transition-colors">
               <TwitterIcon className="h-6 w-6" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 border border-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                Twitter
+              </span>
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="#" className="group relative text-gray-400 hover:text-white transition-colors">
+              <FacebookIcon className="h-6 w-6" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 border border-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                Facebook
+              </span>
+            </a>
+            <a href="#" className="group relative text-gray-400 hover:text-white transition-colors">
+              <InstagramIcon className="h-6 w-6" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 border border-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                Instagram
+              </span>
+            </a>
+            <a href="#" className="group relative text-gray-400 hover:text-white transition-colors">
               <GithubIcon className="h-6 w-6" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 border border-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                GitHub
+              </span>
             </a>
           </div>
         </div>

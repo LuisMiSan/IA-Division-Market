@@ -1,23 +1,58 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
-import AppCard from './components/AppCard';
+import AppCard, { AppCardSkeleton } from './components/AppCard';
+import AddAppModal from './components/AddAppModal';
 import Footer from './components/Footer';
-import { APPS } from './constants';
+import { APPS as INITIAL_APPS } from './constants';
+import { App as AppType } from './types';
 
 const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [apps, setApps] = useState<AppType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Load apps from localStorage or fallback to constants
+  useEffect(() => {
+    // Simulate initial data fetching
+    const timer = setTimeout(() => {
+      const savedApps = localStorage.getItem('ia-workspace-apps');
+      if (savedApps) {
+        try {
+          setApps(JSON.parse(savedApps));
+        } catch (e) {
+          console.error("Failed to parse saved apps", e);
+          setApps(INITIAL_APPS);
+        }
+      } else {
+        setApps(INITIAL_APPS);
+      }
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSaveApp = (newApp: AppType) => {
+    const updatedApps = [newApp, ...apps]; // Add new app to the beginning
+    setApps(updatedApps);
+    localStorage.setItem('ia-workspace-apps', JSON.stringify(updatedApps));
+    setIsModalOpen(false);
+    // Switch category to 'Todos' or the new category to ensure the user sees the new app immediately
+    setSelectedCategory('Todos');
+  };
 
   const categories = useMemo(() => {
-    const uniqueCategories = ['Todos', ...new Set(APPS.map(app => app.category))];
+    const uniqueCategories = ['Todos', ...new Set(apps.map(app => app.category))];
     return uniqueCategories;
-  }, []);
+  }, [apps]);
 
   const filteredApps = useMemo(() => {
     if (selectedCategory === 'Todos') {
-      return APPS;
+      return apps;
     }
-    return APPS.filter(app => app.category === selectedCategory);
-  }, [selectedCategory, APPS]);
+    return apps.filter(app => app.category === selectedCategory);
+  }, [selectedCategory, apps]);
 
   return (
     <div className="bg-gray-950 min-h-screen text-white font-sans antialiased">
@@ -43,12 +78,27 @@ const App: React.FC = () => {
 
         {/* Apps Grid Section */}
         <section id="apps" className="my-24">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">
-            Aplicaciones Destacadas
-          </h2>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+             <h2 className="text-3xl md:text-4xl font-bold text-center md:text-left mb-4 md:mb-0">
+                Aplicaciones Destacadas
+             </h2>
+             
+             {/* Add App Button */}
+             <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-500 text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg hover:shadow-blue-500/30 group"
+             >
+                <div className="bg-slate-700 group-hover:bg-white/20 p-1 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <span className="font-semibold text-sm">Instalar App</span>
+             </button>
+          </div>
           
           {/* Category Filters */}
-          <div className="flex justify-center flex-wrap gap-3 md:gap-4 mb-12">
+          <div className="flex justify-center md:justify-start flex-wrap gap-3 md:gap-4 mb-12">
             {categories.map(category => (
               <button
                 key={category}
@@ -66,14 +116,26 @@ const App: React.FC = () => {
 
           {/* Updated Grid: More columns (lg:grid-cols-4, xl:grid-cols-5) and smaller gap */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {filteredApps.map(app => (
-              <AppCard key={app.id} app={app} />
-            ))}
+            {isLoading 
+              ? Array.from({ length: 5 }).map((_, i) => (
+                  <AppCardSkeleton key={i} />
+                ))
+              : filteredApps.map(app => (
+                  <AppCard key={app.id} app={app} />
+                ))
+            }
           </div>
         </section>
       </main>
 
       <Footer />
+      
+      {/* Modal */}
+      <AddAppModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleSaveApp} 
+      />
     </div>
   );
 };
