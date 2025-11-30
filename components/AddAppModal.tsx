@@ -20,6 +20,8 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
     downloadUrl: '#'
   });
 
+  const [imageError, setImageError] = useState(false);
+
   // Populate form when initialData changes or modal opens
   useEffect(() => {
     if (isOpen && initialData) {
@@ -45,6 +47,11 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
       });
     }
   }, [isOpen, initialData]);
+
+  // Reset image error state when URL changes
+  useEffect(() => {
+    setImageError(false);
+  }, [formData.coverUrl]);
 
   if (!isOpen) return null;
 
@@ -153,18 +160,31 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
 
                  {/* Vista Previa para verificar que la URL funciona */}
                  {formData.coverUrl && (
-                     <div className="mt-4 flex flex-col items-center p-3 bg-slate-900 rounded border border-slate-800">
-                        <span className="text-[10px] uppercase font-bold text-gray-500 mb-2 tracking-wider">Vista Previa</span>
-                        <div className="relative w-[85px] h-[150px] rounded border border-slate-700 bg-black overflow-hidden shadow-lg">
-                            <img 
-                                src={formData.coverUrl} 
-                                alt="Cover Preview" 
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    // Could show an error message here if needed
-                                }}
-                            />
+                     <div className="mt-5 flex flex-col items-center">
+                        <span className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Vista Previa del Cover</span>
+                        
+                        <div className="relative w-[160px] aspect-[9/16] rounded-xl border-2 border-slate-600 bg-black overflow-hidden shadow-2xl flex items-center justify-center group">
+                            {imageError ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-800 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <p className="text-xs text-red-400 font-medium">No se pudo cargar la imagen</p>
+                                    <p className="text-[9px] text-gray-500 mt-1">Verifica que la URL sea pública y directa.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <img 
+                                        src={formData.coverUrl} 
+                                        alt="Cover Preview" 
+                                        className="w-full h-full object-cover transition-opacity duration-300"
+                                        onError={() => setImageError(true)}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                                        <span className="text-[10px] text-white font-medium bg-black/50 px-2 py-1 rounded-full backdrop-blur-md">Se ve genial</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                      </div>
                  )}
