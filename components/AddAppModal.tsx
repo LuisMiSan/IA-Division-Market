@@ -21,6 +21,7 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
   });
 
   const [imageError, setImageError] = useState(false);
+  const [iconError, setIconError] = useState(false);
 
   // Populate form when initialData changes or modal opens
   useEffect(() => {
@@ -48,10 +49,14 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
     }
   }, [isOpen, initialData]);
 
-  // Reset image error state when URL changes
+  // Reset image error states when URLs change
   useEffect(() => {
     setImageError(false);
   }, [formData.coverUrl]);
+
+  useEffect(() => {
+    setIconError(false);
+  }, [formData.icon]);
 
   if (!isOpen) return null;
 
@@ -86,6 +91,8 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
         });
     }
   };
+
+  const defaultIcon = 'https://cdn-icons-png.flaticon.com/512/3269/3269817.png';
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -133,16 +140,27 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
 
             <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">URL del Icono</label>
-                <input 
-                    type="text" 
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
-                    placeholder="https://ejemplo.com/icono.png"
-                    value={formData.icon}
-                    onChange={e => setFormData({...formData, icon: e.target.value})}
-                />
+                <div className="flex gap-3 items-center">
+                    <input 
+                        type="text" 
+                        className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                        placeholder="https://ejemplo.com/icono.png"
+                        value={formData.icon}
+                        onChange={e => setFormData({...formData, icon: e.target.value})}
+                    />
+                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                         <img 
+                            src={formData.icon || defaultIcon} 
+                            alt="icon preview" 
+                            className={`w-full h-full object-cover ${iconError ? 'opacity-50' : ''}`}
+                            onError={() => setIconError(true)}
+                        />
+                    </div>
+                </div>
+                {iconError && <p className="text-[10px] text-red-400 mt-1">Error cargando el icono.</p>}
             </div>
 
-            {/* Sección Cover URL mejorada con Vista Previa */}
+            {/* Sección Cover URL con Vista Previa */}
             <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
                  <label className="block text-sm font-bold text-blue-400 mb-2">
                     URL de la Imagen de Portada (Cover)
