@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import AppCard, { AppCardSkeleton } from './components/AppCard';
@@ -89,7 +88,7 @@ const App: React.FC = () => {
       
       <main className="container mx-auto px-6 pt-32 pb-16 relative z-10">
         {/* Hero Section */}
-        <section className="text-center my-16 md:my-24">
+        <section id="home" className="text-center my-16 md:my-24 scroll-mt-32">
           <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
             Bienvenido a IA DIVISION WorkSpace
           </h1>
@@ -105,7 +104,7 @@ const App: React.FC = () => {
         </section>
 
         {/* Apps Grid Section */}
-        <section id="apps" className="my-24">
+        <section id="apps" className="my-24 scroll-mt-32">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
              <h2 className="text-3xl md:text-4xl font-bold text-center md:text-left mb-4 md:mb-0">
                 Aplicaciones Destacadas
@@ -161,6 +160,43 @@ const App: React.FC = () => {
             }
           </div>
         </section>
+
+        {/* About Section */}
+        <section id="about" className="my-24 py-12 scroll-mt-32 border-t border-slate-800/50">
+            <div className="flex flex-col md:flex-row items-center gap-12">
+                <div className="flex-1 space-y-6">
+                    <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+                        Sobre IA DIVISION
+                    </h2>
+                    <p className="text-gray-400 text-lg leading-relaxed">
+                        Somos pioneros en el desarrollo e integración de soluciones de inteligencia artificial para el entorno laboral moderno. Nuestra misión es democratizar el acceso a herramientas que multiplican la productividad y creatividad humana.
+                    </p>
+                    <p className="text-gray-400 text-lg leading-relaxed">
+                        Desde generadores de código hasta asistentes de escritura, nuestro WorkSpace está diseñado para ser el motor de tu próxima gran idea.
+                    </p>
+                </div>
+                <div className="flex-1 flex justify-center">
+                    <div className="relative w-full max-w-md aspect-video bg-gradient-to-tr from-blue-900/20 to-purple-900/20 rounded-2xl border border-slate-700/50 flex items-center justify-center p-8 backdrop-blur-sm shadow-2xl">
+                        <div className="text-center space-y-2">
+                             <div className="text-5xl font-bold text-white">100+</div>
+                             <div className="text-blue-400 font-medium uppercase tracking-wider">Herramientas IA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         {/* Contact CTA Section */}
+         <section id="contact" className="my-24 scroll-mt-32 text-center border-t border-slate-800/50 pt-16">
+            <h2 className="text-3xl font-bold mb-4">¿Listo para transformar tu flujo de trabajo?</h2>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+              Nuestro equipo de expertos está listo para ayudarte a integrar estas herramientas en tu empresa.
+            </p>
+            <a href="mailto:contacto@iadivision.com" className="inline-block bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-8 rounded-full transition-colors border border-slate-700 hover:border-slate-500">
+                Contáctanos hoy mismo
+            </a>
+         </section>
+
       </main>
 
       <Footer />

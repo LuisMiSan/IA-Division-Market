@@ -25,12 +25,12 @@ const Header: React.FC = () => {
           <span className="text-xl font-bold ml-3 text-white tracking-wider">IA DIVISION <span className="font-light">WorkSpace</span></span>
         </div>
         <nav className="hidden md:flex items-center space-x-8">
-          <a href="#" className="text-gray-300 hover:text-white transition-colors">Inicio</a>
+          <a href="#home" className="text-gray-300 hover:text-white transition-colors">Inicio</a>
           <a href="#apps" className="text-gray-300 hover:text-white transition-colors">Aplicaciones</a>
-          <a href="#" className="text-gray-300 hover:text-white transition-colors">Sobre Nosotros</a>
+          <a href="#about" className="text-gray-300 hover:text-white transition-colors">Sobre Nosotros</a>
         </nav>
         <a 
-          href="#" 
+          href="#contact" 
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-blue-500/50 transform hover:-translate-y-0.5"
         >
           Contacto
