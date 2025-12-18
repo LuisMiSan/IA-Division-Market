@@ -1,74 +1,72 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import AppCard, { AppCardSkeleton } from './components/AppCard';
 import AddAppModal from './components/AddAppModal';
+import AdminPanel from './components/AdminPanel';
 import Footer from './components/Footer';
-import { APPS as INITIAL_APPS } from './constants';
-import { App as AppType } from './types';
+import { APPS as INITIAL_APPS, INITIAL_CONFIG } from './constants';
+import { App as AppType, SiteConfig } from './types';
+import { SearchIcon } from './components/icons';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
+  
+  // LIVE STATE (What everyone sees)
   const [apps, setApps] = useState<AppType[]>([]);
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>(INITIAL_CONFIG);
+  
+  // Navigation State
+  const [view, setView] = useState<'store' | 'admin'>('store');
+  
+  // UI State
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingApp, setEditingApp] = useState<AppType | null>(null);
 
-  // Load apps from localStorage or fallback to constants
+  // Load data from localStorage or fallback
   useEffect(() => {
-    // Simulate initial data fetching
     const timer = setTimeout(() => {
+      // Load Published Apps
       const savedApps = localStorage.getItem('ia-workspace-apps');
       if (savedApps) {
-        try {
-          setApps(JSON.parse(savedApps));
-        } catch (e) {
-          console.error("Failed to parse saved apps", e);
-          setApps(INITIAL_APPS);
-        }
+        try { setApps(JSON.parse(savedApps)); } 
+        catch (e) { setApps(INITIAL_APPS); }
       } else {
         setApps(INITIAL_APPS);
       }
+
+      // Load Published Config
+      const savedConfig = localStorage.getItem('ia-workspace-config');
+      if (savedConfig) {
+        try { setSiteConfig(JSON.parse(savedConfig)); }
+        catch (e) { setSiteConfig(INITIAL_CONFIG); }
+      }
+
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSaveApp = (appToSave: AppType) => {
-    let updatedApps: AppType[];
-
-    // Check if we are updating an existing app
-    const existingIndex = apps.findIndex(a => a.id === appToSave.id);
-
-    if (existingIndex >= 0) {
-      // Update existing
-      updatedApps = [...apps];
-      updatedApps[existingIndex] = appToSave;
-    } else {
-      // Add new
-      updatedApps = [appToSave, ...apps];
-    }
+  // --- Core Action: Publish ---
+  // This is called when the user clicks "Approve/Publish" in the Admin Panel
+  const handlePublishChanges = (newConfig: SiteConfig, newApps: AppType[]) => {
+    // Update Live State
+    setApps(newApps);
+    setSiteConfig(newConfig);
     
-    setApps(updatedApps);
-    localStorage.setItem('ia-workspace-apps', JSON.stringify(updatedApps));
-    setIsModalOpen(false);
-    setEditingApp(null); // Clear editing state
+    // Persist to "Live" storage
+    localStorage.setItem('ia-workspace-apps', JSON.stringify(newApps));
+    localStorage.setItem('ia-workspace-config', JSON.stringify(newConfig));
     
-    // Switch to 'Todos' or ensure category visibility
-    if (selectedCategory !== 'Todos' && selectedCategory !== appToSave.category) {
-        setSelectedCategory('Todos');
-    }
+    // Feedback and exit admin if desired or just stay
+    alert('¡Cambios publicados con éxito!');
   };
 
-  const handleEditClick = (app: AppType) => {
-    setEditingApp(app);
-    setIsModalOpen(true);
+  const handleAdminLogin = () => {
+    setView('admin');
+    window.scrollTo(0, 0);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditingApp(null);
-  };
-
+  // --- Filtering ---
   const categories = useMemo(() => {
     const uniqueCategories = ['Todos', ...new Set(apps.map(app => app.category))];
     return uniqueCategories;
@@ -81,133 +79,156 @@ const App: React.FC = () => {
     return apps.filter(app => app.category === selectedCategory);
   }, [selectedCategory, apps]);
 
+
+  if (view === 'admin') {
+    return (
+        <AdminPanel 
+            config={siteConfig}
+            apps={apps}
+            onPublish={handlePublishChanges}
+            onClose={() => {
+                setView('store');
+                window.scrollTo(0, 0);
+            }}
+        />
+    );
+  }
+
   return (
-    <div className="bg-gray-950 min-h-screen text-white font-sans antialiased">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-      <Header />
+    <div className="bg-[#030712] min-h-screen text-white font-sans antialiased selection:bg-sky-500/30">
+      {/* Background Ambience */}
+      <div className="fixed top-0 left-0 w-full h-screen pointer-events-none z-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(14,165,233,0.15),transparent_70%)]"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
+      </div>
+      
+      <Header brandName={siteConfig.brandName} onAdminClick={handleAdminLogin} />
       
       <main className="container mx-auto px-6 pt-32 pb-16 relative z-10">
+        
         {/* Hero Section */}
-        <section id="home" className="text-center my-16 md:my-24 scroll-mt-32">
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-            Bienvenido a IA DIVISION WorkSpace
-          </h1>
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-            Descubre, descarga y revoluciona tu fuerza de trabajo con nuestra selección de herramientas de inteligencia artificial de vanguardia.
-          </p>
-          <a 
-            href="#apps" 
-            className="inline-block bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold text-lg py-4 px-10 rounded-full transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 transform hover:-translate-y-1"
-          >
-            Explorar Aplicaciones
-          </a>
-        </section>
-
-        {/* Apps Grid Section */}
-        <section id="apps" className="my-24 scroll-mt-32">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-             <h2 className="text-3xl md:text-4xl font-bold text-center md:text-left mb-4 md:mb-0">
-                Aplicaciones Destacadas
-             </h2>
-             
-             {/* Add App Button */}
-             <button
-                onClick={() => {
-                  setEditingApp(null);
-                  setIsModalOpen(true);
-                }}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-500 text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg hover:shadow-blue-500/30 group"
-             >
-                <div className="bg-slate-700 group-hover:bg-white/20 p-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-                    </svg>
+        <div id="apps" className="mt-12 mb-10 scroll-mt-32">
+             <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
+                <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+                    {siteConfig.heroTitle}
+                </h1>
+                <p className="text-sky-400 font-bold uppercase tracking-[0.2em] text-sm md:text-base">
+                    ¿Estás listo para el siguiente nivel?
+                </p>
+                <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                    {siteConfig.heroSubtitle}
+                </p>
+                <div className="pt-4">
+                    <a href="#apps-grid" className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                        <SearchIcon className="w-5 h-5" />
+                        EXPLORAR APPS
+                    </a>
                 </div>
-                <span className="font-semibold text-sm">Instalar App</span>
-             </button>
-          </div>
-          
-          {/* Category Filters */}
-          <div className="flex justify-center md:justify-start flex-wrap gap-3 md:gap-4 mb-12">
-            {categories.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-5 py-2 text-sm md:px-6 md:py-2 md:text-base rounded-full font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-950 focus:ring-blue-500 transform hover:-translate-y-0.5 ${
-                  selectedCategory === category
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+             </div>
 
-          {/* Updated Grid: More columns (lg:grid-cols-4, xl:grid-cols-5) and smaller gap */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {isLoading 
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <AppCardSkeleton key={i} />
-                ))
-              : filteredApps.map(app => (
-                  <AppCard 
-                    key={app.id} 
-                    app={app} 
-                    onEdit={handleEditClick} 
-                  />
-                ))
-            }
-          </div>
-        </section>
+             {/* Filters & Search */}
+             <div id="apps-grid" className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-white/5 pb-8 scroll-mt-24">
+                <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hide w-full md:w-auto">
+                    {categories.map(category => (
+                        <button
+                            key={category}
+                            onClick={() => setSelectedCategory(category)}
+                            className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 select-none ${
+                            selectedCategory === category
+                                ? 'bg-white text-black'
+                                : 'bg-transparent text-gray-500 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            {category}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative group w-full md:w-64">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <SearchIcon className="h-4 w-4 text-gray-500 group-focus-within:text-sky-400 transition-colors" />
+                    </div>
+                    <input 
+                        type="text"
+                        placeholder="Buscar aplicaciones..." 
+                        className="block w-full pl-10 pr-3 py-2 bg-[#1C1C1E] border border-white/10 rounded-lg text-sm placeholder-gray-500 text-gray-200 focus:outline-none focus:border-sky-500/50 transition-all shadow-sm"
+                    />
+                </div>
+             </div>
+
+             {/* Cards Grid */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                {isLoading 
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <AppCardSkeleton key={i} />
+                    ))
+                : filteredApps.map(app => (
+                    <AppCard 
+                        key={app.id} 
+                        app={app} 
+                    />
+                    ))
+                }
+             </div>
+
+             {!isLoading && filteredApps.length === 0 && (
+                 <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                     <p className="text-gray-400 text-lg font-medium">No se encontraron aplicaciones en esta categoría.</p>
+                 </div>
+             )}
+        </div>
 
         {/* About Section */}
-        <section id="about" className="my-24 py-12 scroll-mt-32 border-t border-slate-800/50">
-            <div className="flex flex-col md:flex-row items-center gap-12">
-                <div className="flex-1 space-y-6">
-                    <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-                        Sobre IA DIVISION
+        <section id="about" className="my-32 pt-24 border-t border-white/5">
+            <div className="grid md:grid-cols-2 gap-16 items-center">
+                <div className="space-y-8">
+                    <div className="inline-block px-4 py-1.5 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-sky-500/20">
+                        Nuestra Misión
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-[1.1]">
+                        {siteConfig.aboutTitle}
                     </h2>
-                    <p className="text-gray-400 text-lg leading-relaxed">
-                        Somos pioneros en el desarrollo e integración de soluciones de inteligencia artificial para el entorno laboral moderno. Nuestra misión es democratizar el acceso a herramientas que multiplican la productividad y creatividad humana.
-                    </p>
-                    <p className="text-gray-400 text-lg leading-relaxed">
-                        Desde generadores de código hasta asistentes de escritura, nuestro WorkSpace está diseñado para ser el motor de tu próxima gran idea.
+                    <p className="text-gray-400 text-xl leading-relaxed whitespace-pre-wrap font-light">
+                        {siteConfig.aboutDescription}
                     </p>
                 </div>
-                <div className="flex-1 flex justify-center">
-                    <div className="relative w-full max-w-md aspect-video bg-gradient-to-tr from-blue-900/20 to-purple-900/20 rounded-2xl border border-slate-700/50 flex items-center justify-center p-8 backdrop-blur-sm shadow-2xl">
-                        <div className="text-center space-y-2">
-                             <div className="text-5xl font-bold text-white">100+</div>
-                             <div className="text-blue-400 font-medium uppercase tracking-wider">Herramientas IA</div>
+                <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div className="relative aspect-video bg-[#0f1115] rounded-xl border border-white/10 flex items-center justify-center overflow-hidden">
+                        <div className="text-center z-10">
+                             <div className="text-7xl font-black text-white mb-2 tracking-tighter">10k+</div>
+                             <div className="text-sky-400 uppercase font-bold tracking-[0.2em] text-xs">Descargas Globales</div>
                         </div>
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(14,165,233,0.1),transparent)]"></div>
                     </div>
                 </div>
             </div>
         </section>
 
          {/* Contact CTA Section */}
-         <section id="contact" className="my-24 scroll-mt-32 text-center border-t border-slate-800/50 pt-16">
-            <h2 className="text-3xl font-bold mb-4">¿Listo para transformar tu flujo de trabajo?</h2>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Nuestro equipo de expertos está listo para ayudarte a integrar estas herramientas en tu empresa.
-            </p>
-            <a href="mailto:contacto@iadivision.com" className="inline-block bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-8 rounded-full transition-colors border border-slate-700 hover:border-slate-500">
-                Contáctanos hoy mismo
-            </a>
+         <section id="contact" className="my-24 text-center">
+            <div className="bg-gradient-to-b from-[#111] to-black border border-white/10 rounded-[3rem] p-12 md:p-24 relative overflow-hidden">
+                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.08),transparent_50%)]"></div>
+                 <div className="relative z-10 max-w-3xl mx-auto">
+                    <p className="text-sky-400 font-bold uppercase tracking-[0.3em] text-sm mb-6">
+                        Contacta con nosotros
+                    </p>
+                    <h2 className="text-4xl md:text-6xl font-extrabold mb-8 text-white leading-tight">
+                        {siteConfig.contactTitle}
+                    </h2>
+                    <p className="text-gray-400 mb-12 text-xl font-light whitespace-pre-wrap">
+                        {siteConfig.contactDescription}
+                    </p>
+                    <a href="mailto:contacto@iadivision.com" className="inline-block bg-white text-black hover:bg-gray-200 font-black py-5 px-12 rounded-full transition-all transform hover:-translate-y-1 shadow-2xl">
+                        EMPEZAR AHORA
+                    </a>
+                 </div>
+            </div>
          </section>
 
       </main>
 
-      <Footer />
-      
-      {/* Modal - Reused for Add and Edit */}
-      <AddAppModal 
-        isOpen={isModalOpen} 
-        onClose={handleModalClose} 
-        onSave={handleSaveApp}
-        initialData={editingApp}
-      />
+      <Footer config={siteConfig} onAdminClick={handleAdminLogin} />
     </div>
   );
 };

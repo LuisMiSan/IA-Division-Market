@@ -38,12 +38,23 @@ export const PlayIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     className={className || "h-6 w-6"} 
+    viewBox="0 0 24 24" 
+    fill="currentColor"
+  >
+    <path d="M8 5.14v14l11-7-11-7z" />
+  </svg>
+);
+
+export const SearchIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    className={className || "h-5 w-5"} 
     fill="none" 
     viewBox="0 0 24 24" 
-    strokeWidth={1.5} 
-    stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
   </svg>
 );
 
@@ -102,4 +113,22 @@ export const PencilIcon: React.FC<{ className?: string }> = ({ className }) => (
       d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
     />
   </svg>
+);
+
+export const TrashIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        className={className || "h-5 w-5"} 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor" 
+        strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+);
+
+export const LockIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-4 w-4"} viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+    </svg>
 );

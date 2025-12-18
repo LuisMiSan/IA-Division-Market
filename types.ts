@@ -9,3 +9,19 @@ export interface App {
   demoUrl: string;
   coverUrl?: string;
 }
+
+export interface SiteConfig {
+  brandName: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  aboutTitle: string;
+  aboutDescription: string;
+  contactTitle: string;
+  contactDescription: string;
+  socials: {
+    twitter: string;
+    facebook: string;
+    instagram: string;
+    github: string;
+  };
+}

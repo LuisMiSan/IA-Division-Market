@@ -168,12 +168,12 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
                  <input 
                      type="text" 
                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-600 text-sm"
-                     placeholder="Ej: https://misitio.com/imagen-vertical.jpg"
+                     placeholder="Ej: https://misitio.com/imagen.jpg"
                      value={formData.coverUrl}
                      onChange={e => setFormData({...formData, coverUrl: e.target.value})}
                  />
                  <p className="text-xs text-gray-500 mt-2">
-                    Pega aquí la URL directa de la imagen. Se recomienda formato vertical (9:16).
+                    URL directa de la imagen. Formato recomendado: Horizontal (4:3).
                  </p>
 
                  {/* Vista Previa para verificar que la URL funciona */}
@@ -181,7 +181,7 @@ const AddAppModal: React.FC<AddAppModalProps> = ({ isOpen, onClose, onSave, init
                      <div className="mt-5 flex flex-col items-center">
                         <span className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Vista Previa del Cover</span>
                         
-                        <div className="relative w-[160px] aspect-[9/16] rounded-xl border-2 border-slate-600 bg-black overflow-hidden shadow-2xl flex items-center justify-center group">
+                        <div className="relative w-full aspect-[4/3] rounded-xl border-2 border-slate-600 bg-black overflow-hidden shadow-2xl flex items-center justify-center group">
                             {imageError ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-800 text-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
