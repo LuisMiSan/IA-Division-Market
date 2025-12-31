@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { App } from '../types';
-import { DownloadIcon, PlayIcon, PencilIcon } from './icons';
+import { DownloadIcon, PlayIcon, PencilIcon, ExternalLinkIcon } from './icons';
 
 interface AppCardProps {
   app: App;
@@ -24,6 +24,8 @@ export const AppCardSkeleton: React.FC = () => {
 };
 
 const AppCard: React.FC<AppCardProps> = ({ app, onEdit }) => {
+  const isWeb = app.type === 'web';
+
   return (
     <div className="group relative flex flex-col gap-4">
         {/* Thumbnail Image Container */}
@@ -46,6 +48,11 @@ const AppCard: React.FC<AppCardProps> = ({ app, onEdit }) => {
                      />
                 </div>
             )}
+            
+            {/* Type Badge */}
+            <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-md rounded-md border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/80 z-10">
+                {isWeb ? 'WEB' : 'APP'}
+            </div>
 
             {/* Hover Overlay */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-5 backdrop-blur-[4px]">
@@ -54,19 +61,22 @@ const AppCard: React.FC<AppCardProps> = ({ app, onEdit }) => {
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center w-14 h-14 bg-white text-black rounded-full hover:scale-110 transition-transform shadow-2xl"
-                    title="Ver Demo"
+                    title={isWeb ? "Visitar Sitio" : "Ver Demo"}
                 >
-                    <PlayIcon className="w-6 h-6 fill-current ml-1" />
+                    {isWeb ? <ExternalLinkIcon className="w-6 h-6" /> : <PlayIcon className="w-6 h-6 fill-current ml-1" />}
                 </a>
-                 <a 
-                    href={app.downloadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center w-14 h-14 bg-black/40 text-white border border-white/20 rounded-full hover:bg-black hover:border-white hover:scale-110 transition-all shadow-2xl backdrop-blur-md"
-                    title="Descargar"
-                >
-                    <DownloadIcon className="w-6 h-6" />
-                </a>
+                 
+                 {(!isWeb || (app.downloadUrl && app.downloadUrl !== '#')) && (
+                    <a 
+                        href={app.downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center w-14 h-14 bg-black/40 text-white border border-white/20 rounded-full hover:bg-black hover:border-white hover:scale-110 transition-all shadow-2xl backdrop-blur-md"
+                        title="Descargar"
+                    >
+                        <DownloadIcon className="w-6 h-6" />
+                    </a>
+                 )}
             </div>
 
             {/* Edit Button */}
@@ -77,7 +87,7 @@ const AppCard: React.FC<AppCardProps> = ({ app, onEdit }) => {
                          e.stopPropagation();
                          onEdit(app);
                     }}
-                    className="absolute top-4 right-4 p-2.5 bg-black/60 text-white/70 hover:text-white border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black backdrop-blur-md"
+                    className="absolute top-4 right-4 p-2.5 bg-black/60 text-white/70 hover:text-white border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black backdrop-blur-md z-20"
                 >
                     <PencilIcon className="w-4 h-4" />
                 </button>

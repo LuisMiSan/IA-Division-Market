@@ -1,6 +1,7 @@
 
 export interface App {
   id: number;
+  type: 'app' | 'web'; // New field to distinguish
   name: string;
   category: string;
   description: string;

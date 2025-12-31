@@ -28,7 +28,12 @@ const App: React.FC = () => {
       // Load Published Apps
       const savedApps = localStorage.getItem('ia-workspace-apps');
       if (savedApps) {
-        try { setApps(JSON.parse(savedApps)); } 
+        try { 
+            const parsed = JSON.parse(savedApps);
+            // Ensure compatibility if "type" is missing in older data
+            const normalized = parsed.map((a: any) => ({ ...a, type: a.type || 'app' }));
+            setApps(normalized); 
+        } 
         catch (e) { setApps(INITIAL_APPS); }
       } else {
         setApps(INITIAL_APPS);
@@ -66,18 +71,28 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  // --- Filtering ---
-  const categories = useMemo(() => {
-    const uniqueCategories = ['Todos', ...new Set(apps.map(app => app.category))];
-    return uniqueCategories;
-  }, [apps]);
+  // --- Filtering & Splitting ---
+  
+  const { filteredApps, filteredWebs, categories } = useMemo(() => {
+    const onlyApps = apps.filter(a => (a.type || 'app') === 'app');
+    const onlyWebs = apps.filter(a => a.type === 'web');
 
-  const filteredApps = useMemo(() => {
-    if (selectedCategory === 'Todos') {
-      return apps;
+    // Get categories from both for the unified filter bar, or just from apps? 
+    // Let's filter both lists by the same category selector for simplicity, 
+    // but usually webs might have different categories.
+    const uniqueCategories = ['Todos', ...new Set(apps.map(app => app.category))];
+
+    const filterList = (list: AppType[]) => {
+        if (selectedCategory === 'Todos') return list;
+        return list.filter(app => app.category === selectedCategory);
     }
-    return apps.filter(app => app.category === selectedCategory);
-  }, [selectedCategory, apps]);
+
+    return {
+        filteredApps: filterList(onlyApps),
+        filteredWebs: filterList(onlyWebs),
+        categories: uniqueCategories
+    };
+  }, [apps, selectedCategory]);
 
 
   if (view === 'admin') {
@@ -107,7 +122,7 @@ const App: React.FC = () => {
       <main className="container mx-auto px-6 pt-32 pb-16 relative z-10">
         
         {/* Hero Section */}
-        <div id="apps" className="mt-12 mb-10 scroll-mt-32">
+        <div id="home" className="mt-12 mb-10 scroll-mt-32">
              <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
                 <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
                     {siteConfig.heroTitle}
@@ -119,15 +134,15 @@ const App: React.FC = () => {
                     {siteConfig.heroSubtitle}
                 </p>
                 <div className="pt-4">
-                    <a href="#apps-grid" className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <a href="#apps" className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                         <SearchIcon className="w-5 h-5" />
-                        EXPLORAR APPS
+                        EXPLORAR
                     </a>
                 </div>
              </div>
 
              {/* Filters & Search */}
-             <div id="apps-grid" className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-white/5 pb-8 scroll-mt-24">
+             <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-16 border-b border-white/5 pb-8 scroll-mt-24 sticky top-20 z-40 bg-[#030712]/80 backdrop-blur-md py-4 rounded-xl px-2">
                 <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hide w-full md:w-auto">
                     {categories.map(category => (
                         <button
@@ -150,32 +165,66 @@ const App: React.FC = () => {
                     </div>
                     <input 
                         type="text"
-                        placeholder="Buscar aplicaciones..." 
+                        placeholder="Buscar..." 
                         className="block w-full pl-10 pr-3 py-2 bg-[#1C1C1E] border border-white/10 rounded-lg text-sm placeholder-gray-500 text-gray-200 focus:outline-none focus:border-sky-500/50 transition-all shadow-sm"
                     />
                 </div>
              </div>
 
-             {/* Cards Grid */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-                {isLoading 
-                ? Array.from({ length: 8 }).map((_, i) => (
-                    <AppCardSkeleton key={i} />
-                    ))
-                : filteredApps.map(app => (
-                    <AppCard 
-                        key={app.id} 
-                        app={app} 
-                    />
-                    ))
-                }
+             {/* --- APPS SECTION --- */}
+             <div id="apps" className="mb-24 scroll-mt-32">
+                 <div className="flex items-end gap-4 mb-8">
+                    <h2 className="text-2xl md:text-3xl font-black text-white">Aplicaciones</h2>
+                    <div className="h-px flex-1 bg-white/10 mb-2"></div>
+                 </div>
+
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                    {isLoading 
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <AppCardSkeleton key={i} />
+                        ))
+                    : filteredApps.map(app => (
+                        <AppCard 
+                            key={app.id} 
+                            app={app} 
+                        />
+                        ))
+                    }
+                 </div>
+                 {!isLoading && filteredApps.length === 0 && (
+                     <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                         <p className="text-gray-400 text-sm font-medium">No se encontraron apps en esta categoría.</p>
+                     </div>
+                 )}
              </div>
 
-             {!isLoading && filteredApps.length === 0 && (
-                 <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl bg-white/5">
-                     <p className="text-gray-400 text-lg font-medium">No se encontraron aplicaciones en esta categoría.</p>
+             {/* --- WEBS SECTION --- */}
+             <div id="webs" className="mb-24 scroll-mt-32">
+                 <div className="flex items-end gap-4 mb-8">
+                    <h2 className="text-2xl md:text-3xl font-black text-white">Sitios Web & Landings</h2>
+                    <div className="h-px flex-1 bg-white/10 mb-2"></div>
                  </div>
-             )}
+
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                    {isLoading 
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <AppCardSkeleton key={i} />
+                        ))
+                    : filteredWebs.map(app => (
+                        <AppCard 
+                            key={app.id} 
+                            app={app} 
+                        />
+                        ))
+                    }
+                 </div>
+                 {!isLoading && filteredWebs.length === 0 && (
+                     <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                         <p className="text-gray-400 text-sm font-medium">No se encontraron sitios web en esta categoría.</p>
+                     </div>
+                 )}
+             </div>
+
         </div>
 
         {/* About Section */}

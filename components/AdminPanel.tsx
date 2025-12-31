@@ -12,7 +12,7 @@ interface AdminPanelProps {
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'apps'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'apps' | 'webs'>('general');
   
   // DRAFT STATE
   const [localConfig, setLocalConfig] = useState<SiteConfig>(config);
@@ -25,16 +25,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClos
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<App | null>(null);
 
+  // Derived state for lists
+  const appList = localApps.filter(a => (a.type || 'app') === 'app');
+  const webList = localApps.filter(a => a.type === 'web');
+
   const handleConfigChange = (field: keyof SiteConfig, value: string) => {
     setLocalConfig(prev => ({ ...prev, [field]: value }));
-    setHasChanges(true);
-  };
-
-  const handleSocialChange = (platform: keyof SiteConfig['socials'], value: string) => {
-    setLocalConfig(prev => ({
-      ...prev,
-      socials: { ...prev.socials, [platform]: value }
-    }));
     setHasChanges(true);
   };
 
@@ -66,10 +62,78 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClos
     setHasChanges(false);
   };
 
-  const handleEditClick = (app: App) => {
-    setEditingApp(Object.keys(app).length === 0 ? null : app);
+  const handleEditClick = (app: App | null, type: 'app' | 'web') => {
+    if (app) {
+        setEditingApp(app);
+    } else {
+        // Create a dummy object just to pass the type to the modal if needed, 
+        // OR rely on the modal to default. 
+        // Better: Pass null and let user pick, OR pass a partial obj.
+        // For now, passing null works as "Add New", user picks type in modal.
+        // But to be helpful, let's pre-set the type if we could.
+        // The modal logic resets to default, so user has to click the type toggle.
+        setEditingApp({ type } as App); // Hacky way to pass initial type preference
+    }
     setIsModalOpen(true);
   };
+
+  const renderList = (items: App[], type: 'app' | 'web') => (
+    <div className="space-y-6">
+         <div className="flex justify-between items-center border-b border-white/5 pb-6">
+            <div>
+                <h2 className="text-3xl font-black text-white">{type === 'app' ? 'Aplicaciones' : 'Sitios Web'}</h2>
+                <p className="text-gray-500 mt-2">
+                    {type === 'app' ? 'Gestiona tus productos de software.' : 'Gestiona tus landing pages y sitios web.'}
+                </p>
+            </div>
+            <button 
+                onClick={() => handleEditClick(null, type)}
+                className="bg-white text-black px-8 py-3.5 rounded-full font-black text-sm hover:bg-gray-200 transition-all shadow-xl"
+            >
+                + NUEVO {type === 'app' ? 'APP' : 'WEB'}
+            </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map(app => (
+                <div key={app.id} className="bg-white/5 border border-white/5 rounded-[2rem] p-6 group transition-all hover:bg-white/[0.07] flex flex-col justify-between">
+                    <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-black/40 rounded-2xl border border-white/10 p-2 overflow-hidden">
+                                <img src={app.icon} className="w-full h-full object-contain" alt="" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-lg group-hover:text-sky-400 transition-colors">{app.name}</h4>
+                                <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{app.category}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-sm text-gray-400 line-clamp-2 mb-6 font-light">{app.description}</p>
+                    <div className="flex items-center gap-2 pt-4 border-t border-white/5">
+                        <button 
+                            onClick={() => handleEditClick(app, type)}
+                            className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold text-xs py-3 rounded-xl transition-all border border-white/5"
+                        >
+                            EDITAR
+                        </button>
+                        <button 
+                            onClick={() => handleDeleteAppLocal(app.id)}
+                            className="w-12 h-12 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-500/20"
+                        >
+                            <TrashIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            ))}
+            
+            {items.length === 0 && (
+                <div className="col-span-full py-20 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.02]">
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No hay items en esta sección</p>
+                </div>
+            )}
+        </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#030712] text-white flex flex-col">
@@ -127,6 +191,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClos
             >
                 Configuración
             </button>
+            
+            <div className="pt-4 pb-2 px-2 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                Catálogo
+            </div>
+            
             <button
                 onClick={() => setActiveTab('apps')}
                 className={`w-full text-left px-5 py-3.5 rounded-2xl flex items-center gap-3 transition-all font-bold text-sm ${
@@ -135,7 +204,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClos
                     : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                 }`}
             >
-                Inventario ({localApps.length})
+                <span>Apps</span>
+                <span className="ml-auto bg-white/10 px-2 py-0.5 rounded text-xs text-gray-400">{appList.length}</span>
+            </button>
+
+            <button
+                onClick={() => setActiveTab('webs')}
+                className={`w-full text-left px-5 py-3.5 rounded-2xl flex items-center gap-3 transition-all font-bold text-sm ${
+                    activeTab === 'webs' 
+                    ? 'bg-white text-black shadow-xl scale-[1.02]' 
+                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                }`}
+            >
+                <span>Webs</span>
+                <span className="ml-auto bg-white/10 px-2 py-0.5 rounded text-xs text-gray-400">{webList.length}</span>
             </button>
         </div>
 
@@ -218,58 +300,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, apps, onPublish, onClos
 
             {/* --- APPS TAB --- */}
             {activeTab === 'apps' && (
-                <div className="max-w-6xl mx-auto space-y-10">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-6">
-                        <div>
-                            <h2 className="text-3xl font-black text-white">Inventario</h2>
-                            <p className="text-gray-500 mt-2">Gestiona las aplicaciones que tus usuarios podrán descargar.</p>
-                        </div>
-                        <button 
-                            onClick={() => handleEditClick({} as App)}
-                            className="bg-white text-black px-8 py-3.5 rounded-full font-black text-sm hover:bg-gray-200 transition-all shadow-xl"
-                        >
-                            + NUEVA APLICACIÓN
-                        </button>
-                    </div>
+                <div className="max-w-6xl mx-auto">
+                    {renderList(appList, 'app')}
+                </div>
+            )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {localApps.map(app => (
-                            <div key={app.id} className="bg-white/5 border border-white/5 rounded-[2rem] p-6 group transition-all hover:bg-white/[0.07] flex flex-col justify-between">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-black/40 rounded-2xl border border-white/10 p-2 overflow-hidden">
-                                            <img src={app.icon} className="w-full h-full object-contain" alt="" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-lg group-hover:text-sky-400 transition-colors">{app.name}</h4>
-                                            <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{app.category}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p className="text-sm text-gray-400 line-clamp-2 mb-6 font-light">{app.description}</p>
-                                <div className="flex items-center gap-2 pt-4 border-t border-white/5">
-                                    <button 
-                                        onClick={() => handleEditClick(app)}
-                                        className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold text-xs py-3 rounded-xl transition-all border border-white/5"
-                                    >
-                                        EDITAR
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDeleteAppLocal(app.id)}
-                                        className="w-12 h-12 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-500/20"
-                                    >
-                                        <TrashIcon className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {localApps.length === 0 && (
-                            <div className="col-span-full py-20 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.02]">
-                                <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No hay aplicaciones en tu lista de borrador</p>
-                            </div>
-                        )}
-                    </div>
+             {/* --- WEBS TAB --- */}
+             {activeTab === 'webs' && (
+                <div className="max-w-6xl mx-auto">
+                    {renderList(webList, 'web')}
                 </div>
             )}
 

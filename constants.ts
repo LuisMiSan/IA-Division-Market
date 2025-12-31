@@ -6,11 +6,11 @@ export const LOGO_BASE64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3
 export const INITIAL_CONFIG: SiteConfig = {
   brandName: "IA DIVISION WorkSpace",
   heroTitle: "¿Listo? Tu próximo cliente puede estar visitando tu web.",
-  heroSubtitle: "Creamos herramientas inteligentes diseñadas para responder en tiempo real y transformar visitantes en clientes.",
+  heroSubtitle: "Creamos herramientas inteligentes y experiencias web diseñadas para responder en tiempo real y transformar visitantes en clientes.",
   aboutTitle: "Diseñando el futuro de la respuesta inmediata.",
   aboutDescription: "IA DIVISION no es solo una tienda de aplicaciones. Es el motor que impulsa tu presencia digital con automatización de vanguardia.",
   contactTitle: "¿Quién le responde a tus clientes ahora mismo?",
-  contactDescription: "No dejes pasar una sola oportunidad. Nuestras aplicaciones están listas para trabajar por ti 24/7.",
+  contactDescription: "No dejes pasar una sola oportunidad. Nuestras soluciones están listas para trabajar por ti 24/7.",
   socials: {
     twitter: "#",
     facebook: "#",
@@ -22,6 +22,7 @@ export const INITIAL_CONFIG: SiteConfig = {
 export const APPS: App[] = [
   {
     id: 1,
+    type: 'app',
     name: "NeuroWrite",
     category: "Productivity",
     description: "Asistente de redacción inteligente que adapta el tono y estilo a tu marca personal para correos y blogs.",
@@ -31,6 +32,7 @@ export const APPS: App[] = [
   },
   {
     id: 2,
+    type: 'app',
     name: "PixelGenius",
     category: "Design",
     description: "Crea arte conceptual y activos de juegos en segundos con nuestra IA generativa de imágenes de alta fidelidad.",
@@ -40,6 +42,7 @@ export const APPS: App[] = [
   },
   {
     id: 3,
+    type: 'app',
     name: "CodeSynthesizer",
     category: "DevTools",
     description: "Completa, refactoriza y documenta tu código automáticamente en tiempo real dentro de tu IDE favorito.",
@@ -49,15 +52,18 @@ export const APPS: App[] = [
   },
   {
     id: 4,
-    name: "MarketSense",
-    category: "Business",
-    description: "Predice tendencias de mercado y comportamiento del consumidor con análisis predictivo de Big Data.",
+    type: 'web',
+    name: "FinTech Dashboard",
+    category: "Finance",
+    description: "Landing page interactiva para una plataforma SaaS financiera con gráficos en tiempo real.",
     icon: "https://cdn-icons-png.flaticon.com/512/1087/1087815.png",
-    downloadUrl: "#",
-    demoUrl: "#"
+    downloadUrl: "",
+    demoUrl: "#",
+    coverUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80"
   },
   {
     id: 5,
+    type: 'app',
     name: "LinguaFlow",
     category: "Education",
     description: "Tutor de idiomas personalizado que conversa contigo en tiempo real para mejorar tu fluidez y pronunciación.",
@@ -67,11 +73,13 @@ export const APPS: App[] = [
   },
   {
     id: 6,
-    name: "HealthScan AI",
-    category: "Health",
-    description: "Analiza síntomas y sugiere diagnósticos preliminares basados en literatura médica reciente y segura.",
-    icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
-    downloadUrl: "#",
-    demoUrl: "#"
+    type: 'web',
+    name: "Modern Portfolio",
+    category: "Personal",
+    description: "Plantilla de portafolio minimalista para diseñadores y desarrolladores.",
+    icon: "https://cdn-icons-png.flaticon.com/512/3094/3094923.png",
+    downloadUrl: "",
+    demoUrl: "#",
+    coverUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80"
   }
 ];
