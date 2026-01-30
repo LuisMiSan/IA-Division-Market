@@ -19,6 +19,22 @@ const Header: React.FC<HeaderProps> = ({ brandName = "IA DIVISION WorkSpace", on
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+        // Offset for fixed header
+        const headerOffset = 100;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
+    }
+  };
+
   const renderBrand = () => {
     const parts = brandName.split(' ');
     if (parts.length > 1) {
@@ -38,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ brandName = "IA DIVISION WorkSpace", on
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center">
+        <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <div className="bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
             <img src={LOGO_BASE64} alt="Logo" className="h-7 w-auto" />
           </div>
@@ -46,10 +62,35 @@ const Header: React.FC<HeaderProps> = ({ brandName = "IA DIVISION WorkSpace", on
             {renderBrand()}
           </span>
         </div>
-        <nav className="hidden md:flex items-center space-x-10">
-          <a href="#home" className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide">Inicio</a>
-          <a href="#apps" className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide">Aplicaciones</a>
-          <a href="#about" className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide">Nosotros</a>
+        <nav className="hidden md:flex items-center space-x-8">
+          <a 
+            href="#home" 
+            onClick={(e) => handleNavClick(e, 'home')}
+            className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide"
+          >
+            Inicio
+          </a>
+          <a 
+            href="#apps" 
+            onClick={(e) => handleNavClick(e, 'apps')}
+            className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide"
+          >
+            Aplicaciones
+          </a>
+          <a 
+            href="#webs" 
+            onClick={(e) => handleNavClick(e, 'webs')}
+            className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide"
+          >
+            Webs
+          </a>
+          <a 
+            href="#about" 
+            onClick={(e) => handleNavClick(e, 'about')}
+            className="text-gray-400 hover:text-white transition-colors text-sm font-semibold tracking-wide"
+          >
+            Nosotros
+          </a>
         </nav>
         
         <div className="flex items-center gap-4">
@@ -62,7 +103,8 @@ const Header: React.FC<HeaderProps> = ({ brandName = "IA DIVISION WorkSpace", on
             </button>
             <a 
                 href="#contact" 
-                className="bg-white hover:bg-gray-200 text-black font-black py-2.5 px-7 rounded-full transition-all duration-300 shadow-xl text-xs uppercase tracking-widest"
+                onClick={(e) => handleNavClick(e, 'contact')}
+                className="bg-white hover:bg-gray-200 text-black font-black py-2.5 px-7 rounded-full transition-all duration-300 shadow-xl text-xs uppercase tracking-widest cursor-pointer"
             >
                 Contacto
             </a>

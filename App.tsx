@@ -71,6 +71,19 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleScrollTo = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+        const headerOffset = 100;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
+    }
+  };
+
   // --- Filtering & Splitting ---
   
   const { filteredApps, filteredWebs, categories } = useMemo(() => {
@@ -134,10 +147,13 @@ const App: React.FC = () => {
                     {siteConfig.heroSubtitle}
                 </p>
                 <div className="pt-4">
-                    <a href="#apps" className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <button 
+                        onClick={() => handleScrollTo('apps')}
+                        className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                    >
                         <SearchIcon className="w-5 h-5" />
                         EXPLORAR
-                    </a>
+                    </button>
                 </div>
              </div>
 
